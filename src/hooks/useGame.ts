@@ -27,6 +27,28 @@ export const useGame = () => {
     }
   };
 
+  const setNextHeadPos = () => {
+    const cutEnd = (arr: [number, number][]) => (length >= positions.length ? arr : arr.slice(0, length - positions.length));
+
+    const nextHeadPosition = getNextHeadPosition();
+
+    if (nextHeadPosition[0] === pointPos[0] && nextHeadPosition[1] === pointPos[1]) {
+      eatPoint();
+    }
+
+    if (
+      nextHeadPosition[0] < 1 ||
+      nextHeadPosition[0] > 50 ||
+      nextHeadPosition[1] < 1 ||
+      nextHeadPosition[1] > 50 ||
+      isCrashedToTail(nextHeadPosition)
+    ) {
+      resetGame();
+    } else {
+      setPositions((prev) => [nextHeadPosition, ...cutEnd(prev)]);
+    }
+  };
+
   const eatPoint = () => {
     const newRandomPos = getRandomPointPos();
     setPointPos(newRandomPos);
@@ -45,47 +67,33 @@ export const useGame = () => {
     const keyPressEvent = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft' && direction !== 'right') {
         setDirection('left');
+        setNextHeadPos();
       }
 
       if (e.key === 'ArrowRight' && direction !== 'left') {
         setDirection('right');
+        setNextHeadPos();
       }
 
       if (e.key === 'ArrowUp' && direction !== 'down') {
         setDirection('up');
+        setNextHeadPos();
       }
 
       if (e.key === 'ArrowDown' && direction !== 'up') {
         setDirection('down');
+        setNextHeadPos();
       }
     };
 
     document.addEventListener('keydown', keyPressEvent);
 
     return () => document.removeEventListener('keydown', keyPressEvent);
-  }, [direction]);
+  }, [direction, positions]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const cutEnd = (arr: [number, number][]) => (length >= positions.length ? arr : arr.slice(0, length - positions.length));
-
-      const nextHeadPosition = getNextHeadPosition();
-
-      if (nextHeadPosition[0] === pointPos[0] && nextHeadPosition[1] === pointPos[1]) {
-        eatPoint();
-      }
-
-      if (
-        nextHeadPosition[0] < 1 ||
-        nextHeadPosition[0] > 50 ||
-        nextHeadPosition[1] < 1 ||
-        nextHeadPosition[1] > 50 ||
-        isCrashedToTail(nextHeadPosition)
-      ) {
-        resetGame();
-      } else {
-        setPositions((prev) => [nextHeadPosition, ...cutEnd(prev)]);
-      }
+      setNextHeadPos();
     }, speed);
 
     return () => clearInterval(interval);
