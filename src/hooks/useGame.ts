@@ -91,5 +91,5 @@ export const useGame = () => {
     return () => clearInterval(interval);
   }, [positions, length]);
 
-  return { gridSize, positions, pointPos };
+  return { gridSize, positions, pointPos, length };
 };
