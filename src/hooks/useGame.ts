@@ -8,7 +8,7 @@ export const useGame = () => {
   const [gridSize, setGridSize] = useState<number>(50);
   const [positions, setPositions] = useState<[number, number][]>([[25, 25]]);
   const [direction, setDirection] = useState<Direction>('right');
-  const [speed, setSpeed] = useState(30);
+  const [speed, setSpeed] = useState(60);
   const [length, setLength] = useState(5);
   const [pointPos, setPointPos] = useState<[number, number]>(getRandomPointPos());
   const [startGameScreen, setStartGameScreen] = useState(true);
