@@ -8,9 +8,11 @@ export const useGame = () => {
   const [gridSize, setGridSize] = useState<number>(50);
   const [positions, setPositions] = useState<[number, number][]>([[25, 25]]);
   const [direction, setDirection] = useState<Direction>('right');
-  const [speed, setSpeed] = useState(20);
+  const [speed, setSpeed] = useState(30);
   const [length, setLength] = useState(5);
   const [pointPos, setPointPos] = useState<[number, number]>(getRandomPointPos());
+  const [startGameScreen, setStartGameScreen] = useState(true);
+  const [gameOverScreen, setGameOverScreen] = useState(false);
 
   const getNextHeadPosition = (): [number, number] => {
     switch (direction) {
@@ -36,15 +38,10 @@ export const useGame = () => {
       eatPoint();
     }
 
-    if (
-      nextHeadPosition[0] < 1 ||
-      nextHeadPosition[0] > 50 ||
-      nextHeadPosition[1] < 1 ||
-      nextHeadPosition[1] > 50 ||
-      isCrashedToTail(nextHeadPosition)
-    ) {
-      resetGame();
-    } else {
+    checkIfCrashToWall(nextHeadPosition);
+    checkIfCrashToTail(nextHeadPosition);
+
+    if (!startGameScreen && !gameOverScreen) {
       setPositions((prev) => [nextHeadPosition, ...cutEnd(prev)]);
     }
   };
@@ -55,12 +52,30 @@ export const useGame = () => {
     setLength((prev) => prev + 1);
   };
 
-  const isCrashedToTail = (headPos: [number, number]) => !!positions.find((x) => x[0] === headPos[0] && x[1] === headPos[1]);
-
   const resetGame = () => {
     setPositions([[25, 25]]);
     setLength(5);
     setDirection('right');
+  };
+
+  const gameOver = () => setGameOverScreen(true);
+
+  const startGame = () => {
+    setGameOverScreen(false);
+    setStartGameScreen(false);
+    resetGame();
+  };
+
+  const checkIfCrashToWall = (headPos: [number, number]) => {
+    if (headPos[0] < 1 || headPos[0] > 50 || headPos[1] < 1 || headPos[1] > 50) {
+      gameOver();
+    }
+  };
+
+  const checkIfCrashToTail = (headPos: [number, number]) => {
+    if (!!positions.find((x) => x[0] === headPos[0] && x[1] === headPos[1])) {
+      gameOver();
+    }
   };
 
   useEffect(() => {
@@ -84,6 +99,10 @@ export const useGame = () => {
         setDirection('down');
         setNextHeadPos();
       }
+
+      if ((startGameScreen || gameOverScreen) && e.key === ' ') {
+        startGame();
+      }
     };
 
     document.addEventListener('keydown', keyPressEvent);
@@ -99,5 +118,5 @@ export const useGame = () => {
     return () => clearInterval(interval);
   }, [positions, length]);
 
-  return { gridSize, positions, pointPos, length };
+  return { gridSize, positions, pointPos, length, startGameScreen, gameOverScreen };
 };

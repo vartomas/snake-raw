@@ -1,8 +1,9 @@
 import styled from 'styled-components';
+import InfoModal from './InfoModal';
 import { useGame } from '../hooks/useGame';
 
 const Game = () => {
-  const { gridSize, positions, pointPos, length } = useGame();
+  const { gridSize, positions, pointPos, length, startGameScreen, gameOverScreen } = useGame();
 
   return (
     <Wrapper>
@@ -20,6 +21,8 @@ const Game = () => {
           </Line>
         ))}
       </Container>
+
+      <InfoModal start={startGameScreen} gameOver={gameOverScreen} length={length} />
     </Wrapper>
   );
 };
